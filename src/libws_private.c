@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <errno.h>
 
 #ifdef WIN32
   #define _CRT_RAND_S
@@ -1288,7 +1289,7 @@ int _ws_get_random_mask(ws_t ws, char *buf, size_t len)
 	}
 	#else
 	int i;
-	i = read(ws->ws_base->random_fd, buf, len);
+	i = (int)read(ws->ws_base->random_fd, buf, len);
 	#endif 
 
 	return i;
