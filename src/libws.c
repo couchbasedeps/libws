@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <assert.h>
+#include <errno.h>
 
 #ifdef LIBWS_HAVE_STDINT_H
 #include <stdint.h>
@@ -594,8 +595,12 @@ char *ws_get_uri(ws_t ws, char *buf, size_t bufsize)
 	}
 
 	// TODO: Check return value?
-	if (evutil_snprintf(buf, bufsize, "%s://%s:%d/%s", 
-		(ws->use_ssl != LIBWS_SSL_OFF) ? "wss" : "ws", 
+	if (evutil_snprintf(buf, bufsize, "%s://%s:%d/%s",
+#ifdef LIBWS_WITH_OPENSSL
+		(ws->use_ssl != LIBWS_SSL_OFF) ? "wss" : "ws",
+#else
+        "ws",
+#endif
 		ws->server,
 		ws->port,
 		ws->uri) < 0)
