@@ -344,10 +344,9 @@ static int _ws_handle_close_frame(ws_t ws)
 			LIBWS_LOG(LIBWS_DEBUG, "Reading server close status and reason "
 					" (payload length %lu)", ws->ctrl_len);
 
-            const char* payload = ws->ctrl_payload;
-            //casting char* to uint16_t*, it breaks strict aliasing
-			ws->server_close_status = 
-                (ws_close_status_t)ntohs((((uint16_t)(payload[0])) << 8) + payload[1]);
+            uint16_t status;
+            memcpy(&status, ws->ctrl_payload, 2);
+			ws->server_close_status = (ws_close_status_t)ntohs(status);
             if (ws->ctrl_len > 2)
             {
                 ws->server_reason = &ws->ctrl_payload[2];
