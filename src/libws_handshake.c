@@ -93,6 +93,7 @@ int _ws_send_handshake(ws_t ws, struct evbuffer *out)
 		{
 			evbuffer_add_printf(out, ", %s", ws->subprotocols[i]);
 		}
+        evbuffer_add_printf(out, "\r\n");
 	}
 	
 	evbuffer_add_printf(out, "\r\n");
