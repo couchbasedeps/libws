@@ -1346,7 +1346,8 @@ void ws_default_msg_frame_data_cb(ws_t ws, char *payload,
 	assert(ws);
 
 	LIBWS_LOG(LIBWS_TRACE, "Default message frame data callback "
-							"(Append data to frame data buffer)");
+							"(Append %lld bytes to buffer: now %lld)",
+              len, evbuffer_get_length(ws->frame_data) + len);
 
 	// TODO: Instead of using a copied payload buf here, we should 
 	// instead use evbuffer_add_buffer()

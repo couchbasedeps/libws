@@ -85,11 +85,16 @@ void ws_default_log_cb(int prio, const char *file,
 			break;
 	}
 
-	fprintf(fd, "[%s] %6s, %4d:%-32s: ", 
+    // The entire log has to be written in one fprintf call, to avoid interleaving with other
+    // output being written to stderr on other threads. So we have to buffer the formatted message
+    // in a string instead of using a separate vfprintf call to format and write it.
+    char message[512];
+    vsprintf(message, fmt, args);
+
+	fprintf(fd, "[%s] %6s, %4d:%-32s: %s\n",
 			_ws_get_time_str(timebuf, sizeof(timebuf)), 
-			ws_log_get_prio_str(prio), line, func);
-	vfprintf(fd, fmt, args);
-	fprintf(fd, "\n");
+			ws_log_get_prio_str(prio), line, func,
+            message);
 }
 
 void libws_log(int prio, const char *file, 
