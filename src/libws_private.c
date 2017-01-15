@@ -1136,10 +1136,10 @@ int _ws_send_frame_raw(ws_t ws, ws_opcode_t opcode, char *data, uint64_t datalen
 
 	// Pack and send header.
 	{
-		memset(&ws->header, 0, sizeof(ws_header_t));
+		memset(&ws->send_header, 0, sizeof(ws_header_t));
 
-		ws->header.fin = 0x1;
-		ws->header.opcode = opcode;
+		ws->send_header.fin = 0x1;
+		ws->send_header.opcode = opcode;
 		
 		if (datalen > WS_MAX_PAYLOAD_LEN)
 		{
@@ -1149,16 +1149,16 @@ int _ws_send_frame_raw(ws_t ws, ws_opcode_t opcode, char *data, uint64_t datalen
 			return -1;
 		}
 
-		ws->header.mask_bit = 0x1;
-		ws->header.payload_len = datalen;
+		ws->send_header.mask_bit = 0x1;
+		ws->send_header.payload_len = datalen;
 
-		if (_ws_get_random_mask(ws, (char *)&ws->header.mask, sizeof(uint32_t)) 
+		if (_ws_get_random_mask(ws, (char *)&ws->send_header.mask, sizeof(uint32_t)) 
 			!= sizeof(uint32_t))
 		{
 		 	return -1;
 		}
 
-		ws_pack_header(&ws->header, header_buf, sizeof(header_buf), &header_len);
+		ws_pack_header(&ws->send_header, header_buf, sizeof(header_buf), &header_len);
 		
 		if (_ws_send_data(ws, (char *)header_buf, (uint64_t)header_len, 0))
 		{
@@ -1169,7 +1169,7 @@ int _ws_send_frame_raw(ws_t ws, ws_opcode_t opcode, char *data, uint64_t datalen
 
 	// Send the data.
 	{
-		ws_mask_payload(ws->header.mask, data, datalen);
+		ws_mask_payload(ws->send_header.mask, data, datalen);
 
 		if (_ws_send_data(ws, data, datalen, 1))
 		{
