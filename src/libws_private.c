@@ -793,9 +793,8 @@ void ws_read_callback(struct bufferevent *bev, void *ptr)
 		switch ((state = _ws_read_server_handshake_reply(ws, in)))
 		{
 			case WS_PARSE_STATE_ERROR:
-				// TODO: Do anything else here?
-				_ws_shutdown(ws);
-				break;
+                ws_close_with_status(ws, WS_CLOSE_STATUS_PROTOCOL_ERR_1002);
+                return;
 			case WS_PARSE_STATE_NEED_MORE: return;
 			case WS_PARSE_STATE_SUCCESS:
 			{
