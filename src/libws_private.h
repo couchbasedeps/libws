@@ -115,6 +115,8 @@ typedef struct ws_s
                                 ///< Callback for when a frame ends.
     void *msg_frame_end_arg;    ///< User supplied argument for
                                 /// the ws_s#msg_frame_end_cb.
+    ws_write_callback_f write_cb; ///< Callback for when the socket is ready to write.
+    void *write_arg;            ///< User supplied argument for the ws_s#write_cb.
     ws_close_callback_f close_cb;
                                 ///< Callback for when the websocket connection
                                 /// is closed.

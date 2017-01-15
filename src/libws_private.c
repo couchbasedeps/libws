@@ -823,7 +823,16 @@ void ws_read_callback(struct bufferevent *bev, void *ptr)
 ///
 void ws_write_callback(struct bufferevent *bev, void *ptr)
 {
+    ws_t ws = (ws_t)ptr;
+    assert(ws);
+    
     LIBWS_LOG(LIBWS_DEBUG, "Write callback");
+
+    if (ws->write_cb && ws->state == WS_STATE_CONNECTED)
+    {
+        LIBWS_LOG(LIBWS_DEBUG, "Call write callback");
+        (ws->write_cb)(ws, ws->write_arg);
+    }
 }
 
 static void _ws_connected_event(struct bufferevent *bev, short events, void *arg)
@@ -1031,12 +1040,12 @@ int _ws_create_bufferevent_socket(ws_t ws)
 		}
 	}
 #ifdef LIBWS_EXTERNAL_LOOP
-        assert(base->marshall_read_cb && base->marshall_event_cb && base->marshall_timer_cb);
-        bufferevent_setcb(ws->bev, base->marshall_read_cb, NULL,
-                          base->marshall_event_cb, (void*)ws);
+    assert(base->marshall_read_cb && base->marshall_event_cb && base->marshall_timer_cb);
+    bufferevent_setcb(ws->bev, base->marshall_read_cb, base_marshall_write_cb,
+                      base->marshall_event_cb, (void*)ws);
 #else
-        bufferevent_setcb(ws->bev, ws_read_callback, NULL,
-                          ws_event_callback, (void*)ws);
+    bufferevent_setcb(ws->bev, ws_read_callback, ws_write_callback,
+                      ws_event_callback, (void*)ws);
 #endif
 	return ret;
 fail:

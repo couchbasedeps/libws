@@ -716,6 +716,16 @@ void ws_set_send_timeout_cb(ws_t ws, ws_timeout_callback_f func,
 /// 
 void ws_set_connect_timeout_cb(ws_t ws, ws_timeout_callback_f func, 
 								struct timeval connect_timeout, void *arg);
+///
+/// Sets the ready-to-write callback function.
+///
+/// @param[in]	ws 		The websocket session context.
+/// @param[in]	func 	The callback function.
+/// @param[in]	arg		User context passed to the callback.
+///
+/// @returns			0 on success.
+///
+void ws_set_onwrite_cb(ws_t ws, ws_write_callback_f func, void *arg);
 
 ///
 /// Sets the user context/state for this websocket connection.

@@ -324,6 +324,7 @@ typedef void (*ws_close_callback_f)(ws_t ws, int code, int type,
                                 const char *msg, size_t msg_len, void *arg);
 typedef void (*ws_connect_callback_f)(ws_t ws, void *arg);
 typedef void (*ws_timeout_callback_f)(ws_t ws, struct timeval timeout, void *arg);
+typedef void (*ws_write_callback_f)(ws_t ws, void *arg);
 typedef void (*ws_no_copy_cleanup_f)(ws_t ws, const void *data, uint64_t datalen, void *extra);
 typedef int (*ws_header_callback_f)(ws_t ws, const char *header_name, const char *header_val, void *arg);
 

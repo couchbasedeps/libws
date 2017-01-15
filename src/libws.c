@@ -1113,6 +1113,14 @@ void ws_set_connect_timeout_cb(ws_t ws, ws_timeout_callback_f func,
 	ws->connect_timeout_arg = arg;
 }
 
+void ws_set_onwrite_cb(ws_t ws, ws_write_callback_f func, void *arg)
+{
+    assert(ws);
+
+    ws->write_cb = func;
+    ws->write_arg = arg;
+}
+
 int ws_send_ping_ex(ws_t ws, char *msg, size_t len)
 {
 	assert(ws);
