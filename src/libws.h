@@ -158,6 +158,12 @@ int ws_close_with_status_reason(ws_t ws, ws_close_status_t status,
 				const char *reason, size_t reason_len);
 
 ///
+/// Thread-safe version of ws_close: can be called from any thread.
+/// The actual close will take place on the event loop thread, asynchronously.
+///
+void ws_close_threadsafe(ws_t ws);
+
+///
 /// Service the websocket base context. This needs to be done
 /// periodically to keep the websocket connections running.
 ///
@@ -220,6 +226,11 @@ void ws_handle_marshall_timer_cb(int fd, short events, void* userp);
 /// @returns			0 on success.
 ///
 int ws_send_msg_ex(ws_t ws, char *msg, uint64_t len, int binary);
+
+///
+/// Thread-safe equivalent of ws_send_msg_ex: can be called from any thread.
+///
+int ws_threadsafe_send_msg_ex(ws_t ws, char *msg, uint64_t len, int binary);
 
 ///
 /// Send a websocket UTF-8 text message.

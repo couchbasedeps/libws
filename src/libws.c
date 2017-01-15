@@ -120,7 +120,10 @@ int ws_global_init(ws_base_t *base)
 			LIBWS_LOG(LIBWS_CRIT, "Out of memory!");
 			goto fail;
 		}
-	}
+
+        struct timeval asap = {0, 0};
+        b->asap_ordered = *event_base_init_common_timeout(b->ev_base, &asap);
+    }
 
 	#ifdef LIBWS_WITH_OPENSSL
 	if (_ws_global_openssl_init(b))
@@ -210,6 +213,8 @@ int ws_global_init(ws_base_t base, struct event_base* evbase, struct evdns_base*
 
     base->ev_base = evbase;
     base->dns_base = dnsbase;
+    struct timeval asap = {0, 0};
+    base->asap_ordered = *event_base_init_common_timeout(evbase, &asap);
     if (marshall_read_cb && marshall_event_cb && marshall_timer_cb)
     {
         base->marshall_read_cb = marshall_read_cb;
@@ -535,6 +540,18 @@ void ws_close_immediately(ws_t ws)
         ws->sent_close = 1;
         ws->state = WS_STATE_CLOSED_UNCLEANLY;
     }
+}
+
+static void _ws_close_threadsafe_callback(evutil_socket_t socket, short flags, void *arg)
+{
+    ws_t ws = arg;
+    ws_close(ws);
+}
+
+void ws_close_threadsafe(ws_t ws)
+{
+    ws_timer timer = NULL;
+    _ws_setup_timeout_event(ws, _ws_close_threadsafe_callback, &timer, &ws->ws_base->asap_ordered);
 }
 
 int ws_base_service(ws_base_t base)
@@ -888,6 +905,45 @@ int ws_send_msg(ws_t ws, char *msg)
 	ret = ws_send_msg_ex(ws, msg, (uint64_t)len, 0);
 
 	return ret;
+}
+
+typedef struct {
+    struct event *evtimer;
+    ws_t ws;
+    char *msg;
+    uint64_t len;
+    int binary;
+} ws_send_request;
+
+static void deferred_send(evutil_socket_t socket, short flags, void *arg) {
+    ws_send_request *request = arg;
+    LIBWS_LOG(LIBWS_DEBUG, "Performing async send (msg=%p, len=%llu)", request->msg, request->len);
+    ws_send_msg_ex(request->ws, request->msg, request->len, request->binary);
+    _ws_free(request);
+}
+
+int ws_threadsafe_send_msg_ex(ws_t ws, char *msg, uint64_t len, int binary) {
+    assert(ws);
+    assert(ws->no_copy_cleanup_cb);
+    _WS_MUST_BE_CONNECTED(ws, "send message");
+
+    LIBWS_LOG(LIBWS_DEBUG, "Async send (msg=%p, len=%llu)", msg, len);
+    ws_send_request *request = _ws_malloc(sizeof(ws_send_request));
+    if (request)
+    {
+        request->ws = ws;
+        request->msg = msg;
+        request->len = len;
+        request->binary = binary;
+        if (event_base_once(ws->ws_base->ev_base, -1, EV_TIMEOUT,
+                            deferred_send, (void*)request, &ws->ws_base->asap_ordered) == 0)
+            return 0;
+
+        _ws_free(request);
+    }
+    ws->no_copy_cleanup_cb(ws, msg, len, ws->no_copy_extra);
+    LIBWS_LOG(LIBWS_ERR, "ws_threadsafe_send_msg_ex failed");
+    return -1;
 }
 
 int ws_set_max_frame_size(ws_t ws, uint64_t max_frame_size)

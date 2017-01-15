@@ -26,6 +26,8 @@ typedef struct ws_base_s
     struct event_base *ev_base;  ///< Libevent event base.
     struct evdns_base *dns_base; ///< Libevent DNS base.
 
+    struct timeval asap_ordered; ///< Special timeout for in-order as-soon-as-possible timers
+
 #ifdef LIBWS_EXTERNAL_LOOP
     bufferevent_data_cb marshall_read_cb;
 //  bufferevent_data_cb marshall_write_cb; currently not needed
