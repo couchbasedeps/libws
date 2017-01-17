@@ -406,15 +406,15 @@ int _ws_validate_http_headers(ws_t ws, const char *name, const char *val)
 		// However, the |Sec-WebSocket-Extensions| header field MUST NOT appear
 		// more than once in an HTTP response.
 	   	//
-		{
+#if 1
 			// TODO: Parse extension list here. Right now no extensions are supported, so fail by default.
 			LIBWS_LOG(LIBWS_ERR, "The server wants to use an extension "
 								 "we didn't request: %s", val);
 			// TODO: Set close reason here.
 			return -1;
-		}
-
-		ws->http_header_flags |= WS_HAS_VALID_WS_EXT_HEADER;
+#else
+            ws->http_header_flags |= WS_HAS_VALID_WS_EXT_HEADER;
+#endif
 	}
 
 	// 6. If the response includes a |Sec-WebSocket-Protocol| header field
