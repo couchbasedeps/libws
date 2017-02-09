@@ -918,7 +918,8 @@ typedef struct {
 static void deferred_send(evutil_socket_t socket, short flags, void *arg) {
     ws_send_request *request = arg;
     LIBWS_LOG(LIBWS_DEBUG, "Performing async send (msg=%p, len=%llu)", request->msg, request->len);
-    ws_send_msg_ex(request->ws, request->msg, request->len, request->binary);
+    if (ws_send_msg_ex(request->ws, request->msg, request->len, request->binary) != 0)
+        LIBWS_LOG(LIBWS_WARN, "deferred_send failed");
     _ws_free(request);
 }
 

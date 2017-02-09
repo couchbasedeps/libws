@@ -817,7 +817,7 @@ void ws_read_callback(struct bufferevent *bev, void *ptr)
 
 ///
 /// Libevent bufferevent callback for when a write is done on
-/// the websocket socket. Currently unused
+/// the websocket socket.
 ///
 void ws_write_callback(struct bufferevent *bev, void *ptr)
 {
