@@ -902,18 +902,18 @@ static void _ws_eof_event(struct bufferevent *bev, short events, void *ptr)
 	if (!ws->received_close)
 	{
 		ws->state = WS_STATE_CLOSED_UNCLEANLY;
-		status = WS_CLOSE_STATUS_ABNORMAL_1006;
+            status = WS_CLOSE_STATUS_ABNORMAL_1006;
 	}
 
 	if (ws->close_cb)
 	{
 		LIBWS_LOG(LIBWS_DEBUG, "Call close callback");
-                ws->close_cb(ws,
-			status,
-                        WS_ERRTYPE_PROTOCOL,
-			ws->server_reason,
-			ws->server_reason_len,
-			ws->close_arg);
+        ws->close_cb(ws,
+                     status,
+                     WS_ERRTYPE_PROTOCOL,
+                     ws->server_reason,
+                     ws->server_reason_len,
+                     ws->close_arg);
 	}
 	else
 	{
@@ -1170,7 +1170,8 @@ int _ws_send_frame_raw(ws_t ws, ws_opcode_t opcode, char *data, uint64_t datalen
 	{
 		ws_mask_payload(ws->send_header.mask, data, datalen);
 
-		if (_ws_send_data(ws, data, datalen, 1))
+        int nocopy = (opcode == WS_OPCODE_TEXT_0X1 || opcode == WS_OPCODE_BINARY_0X2);
+		if (_ws_send_data(ws, data, datalen, nocopy))
 		{
 			LIBWS_LOG(LIBWS_ERR, "Failed to send frame data");
 			return -1;
