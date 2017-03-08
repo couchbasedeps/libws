@@ -580,6 +580,8 @@ ws_parse_state_t _ws_read_server_handshake_reply(ws_t ws, struct evbuffer *in)
 
 				LIBWS_LOG(LIBWS_ERR, "Invalid HTTP status code (%d)", 
 									status_code);
+                if (status_code >= 400 && status_code < 599)
+                    ws->server_close_status = status_code;   // Let the client see the HTTP status
 				return WS_PARSE_STATE_ERROR;
 			}
 

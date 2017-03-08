@@ -902,6 +902,7 @@ static void _ws_eof_event(struct bufferevent *bev, short events, void *ptr)
 	if (!ws->received_close)
 	{
 		ws->state = WS_STATE_CLOSED_UNCLEANLY;
+        if (status == 0)
             status = WS_CLOSE_STATUS_ABNORMAL_1006;
 	}
 
