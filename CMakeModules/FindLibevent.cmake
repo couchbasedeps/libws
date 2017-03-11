@@ -21,9 +21,11 @@ find_library(LIBEVENT_LIB_EXTRA NAMES event_extra
     HINTS ${PC_LIBEVENT_LIBDIR} ${PC_LIBEVENT_LIBRARY_DIRS}
 )
 
-find_library(LIBEVENT_LIB_OPENSSL NAMES event_openssl
-    HINTS ${PC_LIBEVENT_LIBDIR} ${PC_LIBEVENT_LIBRARY_DIRS}
-)
+if (LIBWS_WITH_OPENSSL)
+    find_library(LIBEVENT_LIB_OPENSSL NAMES event_openssl
+        HINTS ${PC_LIBEVENT_LIBDIR} ${PC_LIBEVENT_LIBRARY_DIRS}
+    )
+endif()
 
 # On windows for some reason there are no distinct openssl and threading libs
 if (NOT WIN32)
@@ -44,7 +46,10 @@ endif()
 
 set(LIBEVENT_LIBRARIES ${LIBEVENT_LIB} ${LIBEVENT_LIB_CORE} ${LIBEVENT_LIB_EXTRA})
 if (NOT WIN32)
-    list(APPEND LIBEVENT_LIBRARIES ${LIBEVENT_LIB_OPENSSL} ${LIBEVENT_LIB_PTHREADS})
+    list(APPEND LIBEVENT_LIBRARIES ${LIBEVENT_LIB_PTHREADS})
+    if (LIBWS_WITH_OPENSSL)
+        list(APPEND LIBEVENT_LIBRARIES ${LIBEVENT_LIB_OPENSSL})
+    endif()
 endif()
 message(STATUS "libevent libs: ${LIBEVENT_LIBRARIES}")
 
@@ -56,6 +61,9 @@ find_package_handle_standard_args(LibEvent DEFAULT_MSG
 
 mark_as_advanced(LIBEVENT_LIB LIBEVENT_LIB_CORE LIBEVENT_LIB_EXTRA)
 if (NOT WIN32)
-    mark_as_advanced(LIBEVENT_LIB_OPENSSL LIBEVENT_LIB_PTHREADS)
+    mark_as_advanced(LIBEVENT_LIB_PTHREADS)
+    if (LIBWS_WITH_OPENSSL)
+        mark_as_advanced(LIBEVENT_LIB_OPENSSL)
+    endif()
 endif()
 
