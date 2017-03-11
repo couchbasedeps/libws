@@ -75,12 +75,16 @@ set(CMAKE_REQUIRED_DEFINITIONS "")
 # Generate the config header file.
 configure_file(
 	"src/libws_config.h.in"
-	"${PROJECT_BINARY_DIR}/libws_config.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/libws_config.h"
 	)
+configure_file(
+  "src/libws_config.h.in"
+  "${PROJECT_BINARY_DIR}/libws_config.h"
+  )
 
 configure_file(
 	"src/libws_private_config.h.in"
-	"${PROJECT_BINARY_DIR}/libws_private_config.h"
+  "${PROJECT_BINARY_DIR}/libws_private_config.h"
 	)
 
 include_directories(${PROJECT_BINARY_DIR})
