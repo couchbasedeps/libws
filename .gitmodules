@@ -7,3 +7,6 @@
 [submodule "deps/libevent"]
 	path = deps/libevent
 	url = https://github.com/libevent/libevent.git
+[submodule "vendor/libevent"]
+	path = vendor/libevent
+	url = https://github.com/libevent/libevent.git

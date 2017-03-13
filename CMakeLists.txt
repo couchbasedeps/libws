@@ -10,8 +10,19 @@ option(LIBWS_WITH_EXAMPLES "Compile with example programs" OFF)
 option(LIBWS_EXTERNAL_LOOP "Support marshalling of libevent callbacks" ON)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
-find_package(Libevent REQUIRED)
 
+# Build libevent.
+#find_package(Libevent REQUIRED)
+if(NOT LIBWS_WITH_OPENSSL)
+    set(EVENT__DISABLE_OPENSSL ON)
+endif()
+set(EVENT__DISABLE_BENCHMARK ON)
+set(EVENT__DISABLE_REGRESS ON)
+add_subdirectory(vendor/libevent EXCLUDE_FROM_ALL)
+set(LIBEVENT_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/vendor/libevent/include"
+                          "vendor/libevent/include")
+set(LIBEVENT_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/vendor/libevent/lib/libevent.a")
+set(LIBEVENT_OPENSSL_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/vendor/libevent/lib/libevent_ssl.a")
 
 # Set some nicer output dirs.
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
